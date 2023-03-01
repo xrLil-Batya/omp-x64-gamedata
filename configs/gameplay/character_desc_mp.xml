@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding="windows-1251"?>
+<xml>
+  <specific_character id="mp_default_stalker_0_default_0" team_default = "1">
+    <name>GENERATE_NAME_stalker</name>
+    <icon>ui_inGame2_neutral_1</icon>
+    <map_icon x="1" y="0"></map_icon>
+    <bio>Опытный сталкер. Детальная информация отсутствует.</bio>
+
+    <class>mp_default_stalker</class>
+    <community>stalker</community> <terrain_sect>stalker_terrain</terrain_sect>
+    <snd_config>characters_voice\human_01\stalker\</snd_config>
+
+    <rank>25</rank>
+	  <money min="250" max="1750" infinitive="0"/>
+    <reputation>0</reputation>
+	
+    <visual>actors\stalker_neutral\stalker_neutral_1</visual>
+    <supplies>
+      [spawn] \n      
+      wpn_bm16 \n
+      ammo_12x70_buck  = 1 \n
+      wpn_pm = 1 \n
+      ammo_9x18_fmj = 1 \n
+    </supplies>
+#include "gameplay\character_dialogs_mp.xml"
+  </specific_character>
+</xml>

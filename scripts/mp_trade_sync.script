@@ -1,0 +1,94 @@
+-----------------------------------------------------------------
+-- Author	: just_chiller 
+-- Description	: Синхронизация конфигов торговли для NPC
+-- Last Change	: 12.03.2021
+-----------------------------------------------------------------
+
+local sv_trade_configs_count = 0
+local sv_trade_configs_npc = {
+	-- format:
+    -- "path\to\trade_config_1.ltx": {id1, id2, id3},
+    -- "path\to\trade_config_2.ltx": {id4, id5, id6}
+}
+
+-- server side
+
+function sv_remove_trade(npc)
+	local id = npc:id()
+	for config, ids in pairs(sv_trade_configs_npc) do
+		for i = 1, #ids do
+			if ids[i] == id then
+				table.remove(ids, i)
+				break
+			end
+		end        
+		if #ids == 0 then
+			sv_trade_configs_npc[config] = nil
+			sv_trade_configs_count = sv_trade_configs_count - 1
+		end
+	end
+end
+
+function sv_set_trade(npc, trade_config)
+	sv_remove_trade(npc)
+	local id = npc:id()
+	if sv_trade_configs_npc[trade_config] == nil then
+		sv_trade_configs_npc[trade_config] = {}
+		sv_trade_configs_count = sv_trade_configs_count + 1
+	end
+	local ids = sv_trade_configs_npc[trade_config]
+	table.insert(ids, id)
+	
+	-- send broadcast
+	sv_send_trade_config(id, trade_config)
+end
+
+function sv_send_trade_config(id, config)
+	local packet = mp_events.gen_event('TRADE_CONFIG')
+    packet:w_u16(id)
+    packet:w_stringZ(config)
+    mp_events.send_broadcast(packet)
+end
+
+function sv_write_all_trade_configs(packet)
+	packet:w_u16(sv_trade_configs_count)				-- count of configs
+	for config, ids in pairs(sv_trade_configs_npc) do
+		packet:w_stringZ(config)						-- config
+		packet:w_u16(#ids)								-- count of npc id
+		for i = 1, #ids do
+			packet:w_u16(ids[i])						-- npc id
+		end
+    end
+end
+
+-- client side
+
+local trader_init = function(npc_id, config)
+	local npc = level.object_by_id(npc_id)
+	if npc ~= nil then
+		trade_manager.trade_init(npc, config)
+	else
+		printf_msg(
+			'Unknown error. NPC ID:'..tostring(npc_id)
+				..' Config:'..tostring(config)
+		)
+	end
+end
+
+function cl_process_trade_config(P)
+	local npc_id = P:r_u16()
+	local config = P:r_stringZ()
+	trader_init(npc_id, config)
+end
+
+function cl_process_all_trade_configs(P)
+	local configs_count = P:r_u16()						-- count of configs
+	for i = 1, configs_count do
+		local config = P:r_stringZ()					-- config
+		local ids_count = P:r_u16()						-- count of npc id
+		for j = 1, ids_count do
+			local npc_id = P:r_u16()					-- npc id
+			trader_init(npc_id, config)
+		end
+	end
+end

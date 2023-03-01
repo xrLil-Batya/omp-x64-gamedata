@@ -1,0 +1,34 @@
+-----------------------------------------------------------------
+-- Author	: just_chiller 
+-- Description	: Телепорт игроков в мультиплеере
+-- Last Change	: 26.06.2021
+-----------------------------------------------------------------
+
+function cl_send_teleport_event(point_name, look_name)
+	local packet = mp_events.gen_event('TELEPORT_PLAYER')
+	if look_name == nil then
+		packet:w_u8(0)
+		packet:w_stringZ(point_name)
+	else
+		packet:w_u8(1)
+		packet:w_stringZ(point_name)
+		packet:w_stringZ(look_name)
+	end
+    mp_events.send_to_server(packet)
+end
+
+function sv_process_teleport_event(senderId, P)
+    local have_dir = (P:r_u8() == 1)
+    if not have_dir then
+        local point_name = P:r_stringZ()
+        local point = patrol(point_name)
+        mp.sv_teleport_player(senderId, point:point(0))
+    else
+        local point_name = P:r_stringZ()
+        local look_name = P:r_stringZ()
+        local point = patrol(point_name)
+        local look = patrol(look_name)
+        local dir = -look:point(0):sub(point:point(0)):getH()
+        mp.sv_teleport_player2(senderId, point:point(0), vector():set(0, -dir, 0))
+    end
+end

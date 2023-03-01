@@ -1,0 +1,17 @@
+[smart_terrain]
+squad_id = 1
+max_population = 4
+arrive_dist = 15
+respawn_params = respawn@stalkers_respawn
+
+
+[respawn@stalkers_respawn]
+spawn_stalkers
+
+[spawn_stalkers]
+spawn_squads = simulation_stalker_mp
+spawn_num = 1
+
+[exclusive]
+omp_test_stalkers_chair = omp_test\smart_exclusive_logic\stalker_chair.ltx
+omp_test_stalkers_walker = omp_test\smart_exclusive_logic\stalker_walker.ltx

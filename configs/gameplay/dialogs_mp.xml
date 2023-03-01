@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<game_dialogs>
+    <dialog id="mp_hello_dialog">
+         <phrase_list>
+            <phrase id="0">
+                <text>dm_hello_general</text>
+            </phrase>
+        </phrase_list>
+    </dialog>
+</game_dialogs>

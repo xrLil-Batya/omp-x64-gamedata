@@ -1,0 +1,25 @@
+local INI = ini_file("misc\\omp\\af_respawn.ltx")
+
+local MIN_AF_RESPAWN_TIME 	= utils.cfg_get_number(INI, "af_respawn", "min_respawn_time", nil, false, 0)
+local MAX_AF_RESPAWN_TIME 	= utils.cfg_get_number(INI, "af_respawn", "max_respawn_time", nil, false, 0)
+local AF_FIRST_SPAWN_SET 	= not utils.cfg_get_bool(INI, "af_respawn", "need_first_spawn", nil, false, true)
+local AF_NEXT_SPAWN_TIME 	= 0
+
+function try_respawn()
+	if OnServer() then
+		if AF_NEXT_SPAWN_TIME < time_global() then
+			local rnd_time = math.random(MIN_AF_RESPAWN_TIME, MAX_AF_RESPAWN_TIME)
+			if AF_FIRST_SPAWN_SET == true then
+				printf_msg('spawn artefacts')
+				local anomalies = db.anomaly_by_name
+				for k,v in pairs(anomalies) do
+					v:respawn_artefacts_and_replace_anomaly_zone()
+				end
+				AF_NEXT_SPAWN_TIME = time_global() + rnd_time * 60 * 1000
+			else
+				AF_FIRST_SPAWN_SET = true
+				AF_NEXT_SPAWN_TIME = time_global() + rnd_time * 60 * 1000
+			end
+		end
+	end
+end

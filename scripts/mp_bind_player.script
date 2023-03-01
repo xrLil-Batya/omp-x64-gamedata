@@ -1,0 +1,70 @@
+
+----------------------------------------------------------------------------------------------------------------------
+class "mp_player_binder" (object_binder)
+----------------------------------------------------------------------------------------------------------------------
+
+function mp_player_binder:__init (obj) super(obj)
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function mp_player_binder:net_spawn(data)
+	server_msg("[%s] net_spawn", self.object:name())
+	if object_binder.net_spawn(self,data) == false then
+		return false	
+	end
+	db.add_player(self.object)
+	return true
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function mp_player_binder:net_destroy()
+	server_msg("[%s] net_destroy", self.object:name())
+	db.del_player(self.object)
+	object_binder.net_destroy(self)
+end
+----------------------------------------------------------------------------------------------------------------------
+
+function mp_player_binder:reinit()
+	object_binder.reinit(self)
+	
+	self.object:set_callback(callback.on_item_take, self.on_item_take, self)
+	self.object:set_callback(callback.on_item_drop, self.on_item_drop, self)
+	self.object:set_callback(callback.death, self.death_callback, self)
+end
+----------------------------------------------------------------------------------------------------------------------
+
+function mp_player_binder:update(delta)
+	object_binder.update(self, delta)
+	
+end
+
+function mp_player_binder:on_item_take(obj)
+	server_msg("[%s] take item [%s]", self.object:name(), obj:name())
+end
+
+function mp_player_binder:on_item_drop(obj)
+	server_msg("[%s] drop item [%s]", self.object:name(), obj:name())
+end
+
+function mp_player_binder:death_callback(victim, who)
+	server_msg("[%s] death. Killer [%s]", self.object:name(), who:name())
+
+	victim:set_callback(callback.on_item_take, nil)
+	victim:set_callback(callback.on_item_drop, nil)
+	victim:set_callback(callback.death, nil)
+end
+
+----------------------------------------------------------------------------------------------------------------------
+function mp_player_binder:save(packet)
+	object_binder.save(self, packet)
+end
+----------------------------------------------------------------------------------------------------------------------
+function mp_player_binder:load(reader)
+	object_binder.load(self, reader)
+end
+
+
+
+

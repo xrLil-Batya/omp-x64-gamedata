@@ -1,0 +1,138 @@
+
+local weapon_hide = {}
+local cl_init_event_request_sended = false
+
+function reset_globals()
+	cl_init_event_request_sended = false
+end
+
+----------------------------------------------------------------------------------------------------------------------
+class "mp_actor_binder" (object_binder)
+----------------------------------------------------------------------------------------------------------------------
+
+function mp_actor_binder:__init (obj) super(obj)
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function mp_actor_binder:net_spawn(data)
+	printf_msg("[%s] net_spawn", self.object:name())
+	if object_binder.net_spawn(self,data) == false then
+		return false	
+	end
+	db.del_mp_actor()
+	db.add_mp_actor(self.object)
+	db.add_player(self.object)
+	
+	weapon_hide = {}
+	self.weapon_hide = false
+	
+	return true
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function mp_actor_binder:net_destroy()
+	printf_msg("[%s] net_destroy", self.object:name())
+	-- net_destroy может быть вызывать после респавна и установки нового mp_actor
+	if db.mp_actor and db.mp_actor:id() == self.object:id() then
+		db.del_mp_actor()
+	end
+	db.del_player(self.object)
+	object_binder.net_destroy(self)
+end
+----------------------------------------------------------------------------------------------------------------------
+
+function mp_actor_binder:reinit()
+	object_binder.reinit(self)
+	
+	db.storage[self.object:id()] = { }
+	
+	self.object:set_callback(callback.use_object, self.use_callback, self)
+	self.object:set_callback(callback.on_item_take, self.on_item_take, self)
+	self.object:set_callback(callback.on_item_drop, self.on_item_drop, self)
+	self.object:set_callback(callback.death, self.death_callback, self)
+end
+----------------------------------------------------------------------------------------------------------------------
+
+function mp_actor_binder:update(delta)
+	object_binder.update(self, delta)
+	
+	if not db.mp_actor or db.mp_actor:id() ~= self.object:id() then
+		return
+	end
+	
+	if OnClient() and not cl_init_event_request_sended then
+		mp_events.cl_send_request_player_init_event()
+		cl_init_event_request_sended = true
+	end
+
+	-- Апдейт прятание оружия игрока в зоне sr_no_weapon
+	if check_for_weapon_hide_by_zones() == true then
+		if self.weapon_hide == false then
+			self.object:hide_weapon()
+			self.weapon_hide = true
+		end
+	else
+		if self.weapon_hide == true then
+			self.object:restore_weapon()
+			self.weapon_hide = false
+		end
+	end
+end
+
+function mp_actor_binder:on_item_take(obj)
+	printf_msg("[%s] take item [%s]", self.object:name(), obj:name())
+	if isArtefact(obj) then
+		xr_statistic.inc_founded_artefacts_counter(obj:id())
+	end
+end
+
+function mp_actor_binder:on_item_drop(obj)
+	printf_msg("[%s] drop item [%s]", self.object:name(), obj:name())
+end
+
+function mp_actor_binder:use_callback(obj)
+	printf_msg("[%s] use [%s]", self.object:name(), obj:name())
+end
+
+function mp_actor_binder:death_callback(victim, who)
+	printf_msg("[%s] death. Killer [%s]", self.object:name(), who:name())
+
+	victim:set_callback(callback.use_object, nil)
+	victim:set_callback(callback.on_item_take, nil)
+	victim:set_callback(callback.on_item_drop, nil)
+	victim:set_callback(callback.death, nil)
+end
+
+----------------------------------------------------------------------------------------------------------------------
+function mp_actor_binder:save(packet)
+	object_binder.save(self, packet)
+end
+----------------------------------------------------------------------------------------------------------------------
+function mp_actor_binder:load(reader)
+	object_binder.load(self, reader)
+end
+
+----------------------------------------------------------------------------------------------------------------------
+function check_for_weapon_hide_by_zones()
+	for k,v in pairs(weapon_hide) do
+		if v == true then
+			return true
+		end
+	end
+	return false
+end
+
+-- Weapon functions
+function hide_weapon(zone_id)
+	printf("[WEAPON_CONTROL]:hiding weapon from zone [%s] in section [%s]!!!", zone_id, db.storage[zone_id].active_section)
+	weapon_hide[zone_id] = true
+end
+
+function restore_weapon(zone_id)
+	printf("[WEAPON_CONTROL]:restoring weapon from zone [%s] in section [%s]!!!", zone_id, db.storage[zone_id].active_section)
+	weapon_hide[zone_id] = false
+end
+
+

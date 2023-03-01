@@ -1,0 +1,88 @@
+
+function actor_init(npc)
+	npc:bind_object(actor_binder(npc))
+	printf_msg("bind single actor")
+end
+
+local cl_init_event_request_sended = false
+
+function reset_globals()
+	cl_init_event_request_sended = false
+end
+
+----------------------------------------------------------------------------------------------------------------------
+class "actor_binder" (object_binder)
+
+function actor_binder:__init (obj) super(obj)
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function actor_binder:reinit()
+	object_binder.reinit(self)
+	local npc_id = self.object:id()
+	db.storage[npc_id] = { }
+	self.st = db.storage[npc_id]
+	self.st.pstor = nil
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function actor_binder:net_spawn(data)
+	if object_binder.net_spawn(self,data) == false then
+		return false
+	end
+	if OnServer() then
+		db.add_actor(self.object)
+	end
+	return true
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function actor_binder:net_destroy()
+	object_binder.net_destroy(self)	
+	if OnServer() then
+		db.del_actor(self.object)
+	else
+		db.del_obj(self.object)
+	end
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function actor_binder:update(delta)
+	object_binder.update(self, delta)
+
+	if OnServer() then
+		--' обработка серверных эвентов
+		mp_events.process_server_events()
+	end
+
+	if OnClient() then
+		--' обработка клиентских эвентов
+		mp_events.process_client_events()
+		--' запросить стартовый эвент
+		if not cl_init_event_request_sended then
+			mp_events.cl_send_request_init_event()
+			cl_init_event_request_sended = true
+		end
+	end
+
+	if OnServer() then
+		mp_artefacts_respawner.try_respawn()
+	end
+
+	--' Апдейт саундменеджера
+	xr_sound.update(self.object:id())
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function actor_binder:save(packet)
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function actor_binder:load(reader)
+end

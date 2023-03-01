@@ -1,0 +1,51 @@
+
+function none(obj) end
+
+function mp_actor_init (obj)
+	if 	level.game_id() ~= game_types.eGameIDFreeMp and
+		level.game_id() ~= game_types.eGameIDRolePlay
+	then
+		return
+	end
+	if not IsDedicated() then	
+		if obj:id() == level.get_g_actor_id() then
+			obj:bind_object(mp_bind_actor.mp_actor_binder(obj))
+		else
+			obj:bind_object(mp_bind_player.mp_player_binder(obj))
+		end
+	else
+		obj:bind_object(mp_bind_player.mp_player_binder(obj))
+	end
+end
+
+function actor_init(obj)
+	if IsGameTypeSingle() then
+		bind_stalker.actor_init(obj)
+	else
+		mp_bind_single_actor.actor_init(obj)
+	end
+end
+
+function stalker_init(obj)
+	if IsGameTypeSingle() then
+		xr_motivator.AddToMotivator(obj)
+	else
+		if OnServer() then
+			xr_motivator.AddToMotivator(obj)
+		else
+			obj:bind_object(mp_bind_stalker_cl.cl_stalker_binder(obj))
+		end
+	end
+end
+
+function monster_init(obj)
+	if IsGameTypeSingle() then
+		bind_monster.bind(obj)
+	else
+		if OnServer() then
+			bind_monster.bind(obj)
+		else
+			obj:bind_object(mp_bind_monster_cl.cl_monster_binder(obj))
+		end
+	end
+end

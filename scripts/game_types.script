@@ -1,0 +1,8 @@
+eGameIDNoGame						= 0
+eGameIDSingle						= 1		--u32(1) << 0,
+eGameIDDeathmatch					= 2		--u32(1) << 1,
+eGameIDTeamDeathmatch				= 4		--u32(1) << 2,
+eGameIDArtefactHunt					= 8		--u32(1) << 3,
+eGameIDCaptureTheArtefact			= 16	--u32(1) << 4,
+eGameIDFreeMp						= 32	--u32(1) << 5,
+eGameIDRolePlay						= 64	--u32(1) << 5,

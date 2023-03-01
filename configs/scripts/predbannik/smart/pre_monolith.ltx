@@ -1,0 +1,16 @@
+[smart_terrain]
+max_population = 2
+spawn_point = self
+respawn_params = respawn@pre_monolith
+
+[respawn@pre_monolith]
+spawn_monolith@novice
+
+[spawn_monolith@novice]
+spawn_squads = monolith_sim_squad_novice
+spawn_num = 1
+
+[exclusive]
+pre_monolith_way = predbannik\pre_monolith_logic.ltx
+pre_monolith_way_2 = predbannik\pre_monolith_logic.ltx
+pre_monolith_way_3 = predbannik\pre_monolith_logic.ltx

@@ -1,0 +1,96 @@
+-----------------------------------------------------------------
+-- Author	: just_chiller 
+-- Description	: Адаптация синхронизации дверей из MoD под OMP
+-- Last Change	: 11.03.2021
+-----------------------------------------------------------------
+
+local function normalize_section(section)
+    if starts_with(section, '@') then
+        return 'ph_door'..section
+    end
+    return section
+end
+
+local function shorten_section(section)
+    if starts_with(section, 'ph_door@') then
+        -- remove "ph_door" from "ph_door@section"
+        return section:sub(8, #section)
+    end
+    return section
+end
+
+
+function cl_process_all_door_sections(P)
+    if OnServer() then
+        return
+    end
+
+    local count = P:r_u16()
+    for i = 1, count do
+        local door_id = P:r_u16()
+        local section = P:r_stringZ()
+
+        local physic_door = db.storage[door_id].ph_door
+        if physic_door ~= nil then
+            local action = physic_door.door_action		
+            if action ~= nil then
+                action:switch_section(normalize_section(section))
+            end
+        end
+    end
+end
+
+function sv_write_all_door_sections(packet)
+    packet:w_u16(ph_door._g_doors_count)
+    for door_id, val in pairs(ph_door._g_doors) do
+        local action = db.storage[door_id].ph_door.door_action
+        packet:w_u16(door_id)
+        packet:w_stringZ(shorten_section(action.st.section))
+    end
+end
+
+--
+
+function send_use_door_event(door_id)
+    local packet = mp_events.gen_event('DOOR_USE')
+    packet:w_u16(door_id)
+    mp_events.send_to_server(packet)
+end
+
+function sv_process_use_door_event(senderId, P)
+    local door_id = P:r_u16()
+
+    local physic_door = db.storage[door_id].ph_door
+    if physic_door ~= nil then
+        local door_action = physic_door.door_action
+        if door_action ~= nil then			
+            local obj = level.get_object_by_client(senderId)
+            door_action:try_switch(obj)
+            sv_send_door_section(door_id, door_action.st.section)
+        end
+    end
+end
+
+function sv_send_door_section(door_id, section)
+    local packet = mp_events.gen_event('DOOR_CHANGE_SECTION')
+    packet:w_u16(door_id)
+    packet:w_stringZ(shorten_section(section))
+    mp_events.send_broadcast(packet)
+end
+
+function cl_process_door_section(P)
+    if OnServer() then
+        return
+    end
+
+    local door_id = P:r_u16()
+    local section = P:r_stringZ()
+
+    local physic_door = db.storage[door_id].ph_door
+    if physic_door ~= nil then
+        local action = physic_door.door_action		
+        if action ~= nil then
+            action:switch_section(normalize_section(section))
+        end
+    end
+end

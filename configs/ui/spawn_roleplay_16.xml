@@ -1,0 +1,97 @@
+<window>
+	<team_selector x="290" y="115" width="434" height="526">
+		<background x="0" y="0" width="434" height="526" stretch="1">
+			<texture>ui_inGame2_Mp_screen_main_window</texture>
+		</background>
+		<caption x="120" y="4" width="198" height="32">
+			<text font="letterica18" r="200" g="200" b="200" align="c" vert_align="c">mp_community_selection</text>
+		</caption>
+
+		<image_1 x="80" y="80" width="39" height="52" stretch="1">
+			<texture>ui_mp_community_icon_1</texture>
+		</image_1>
+		<image_2 x="160" y="80" width="39" height="52" stretch="1">
+			<texture>ui_mp_community_icon_2</texture>
+		</image_2>
+		<image_3 x="240" y="80" width="39" height="52" stretch="1">
+			<texture>ui_mp_community_icon_3</texture>
+		</image_3>
+		<image_4 x="320" y="80" width="39" height="52" stretch="1">
+			<texture>ui_mp_community_icon_4</texture>
+		</image_4>
+
+		<image_5 x="80" y="170" width="39" height="52" stretch="1">
+			<texture>ui_mp_community_icon_5</texture>
+		</image_5>
+		<image_6 x="160" y="170" width="39" height="52" stretch="1">
+			<texture>ui_mp_community_icon_6</texture>
+		</image_6>
+		<image_7 x="240" y="170" width="39" height="52" stretch="1">
+			<texture>ui_mp_community_icon_7</texture>
+		</image_7>
+		<image_8 x="320" y="170" width="39" height="52" stretch="1">
+			<texture>ui_mp_community_icon_8</texture>
+		</image_8>
+
+		<auto_static x="100" y="146" width="39" height="20" alignment="c" stretch="1">
+			<text align="c" font="letterica18" r="192" g="168" b="144">rp_team_1_name</text>
+		</auto_static>
+		<auto_static x="180" y="146" width="39" height="20" alignment="c" stretch="1">
+			<text align="c" font="letterica18" r="192" g="168" b="144">rp_team_2_name</text>
+		</auto_static>
+		<auto_static x="260" y="146" width="39" height="20" alignment="c" stretch="1">
+			<text align="c" font="letterica18" r="192" g="168" b="144">rp_team_3_name</text>
+		</auto_static>
+		<auto_static x="340" y="146" width="39" height="20" alignment="c" stretch="1">
+			<text align="c" font="letterica18" r="192" g="168" b="144">rp_team_4_name</text>
+		</auto_static>
+
+		<auto_static x="100" y="236" width="39" height="20" alignment="c" stretch="1">
+			<text align="c" font="letterica18" r="192" g="168" b="144">rp_team_5_name</text>
+		</auto_static>
+		<auto_static x="180" y="236" width="39" height="20" alignment="c" stretch="1">
+			<text align="c" font="letterica18" r="192" g="168" b="144">rp_team_6_name</text>
+		</auto_static>
+		<auto_static x="260" y="236" width="39" height="20" alignment="c" stretch="1">
+			<text align="c" font="letterica18" r="192" g="168" b="144">rp_team_7_name</text>
+		</auto_static>
+		<auto_static x="340" y="236" width="39" height="20" alignment="c" stretch="1">
+			<text align="c" font="letterica18" r="192" g="168" b="144">rp_team_8_name</text>
+		</auto_static>
+
+		<text_desc x="22" y="303" width="380" height="144" complex_mode="1">
+			<text font="letterica18" r="192" g="168" b="144">rp_team_1_name</text>
+			<text font="letterica18">\n </text>
+			<text font="letterica18" r="106" g="95" b="91">rp_team_1_desc</text>
+			<text font="letterica18">\n \n </text>
+			<text font="letterica18" r="192" g="168" b="144">rp_team_2_name</text>
+			<text font="letterica18">\n </text>
+			<text font="letterica18" r="106" g="95" b="91">rp_team_2_desc</text>
+			<text font="letterica18">\n \n </text>
+			<text font="letterica18" r="192" g="168" b="144">rp_team_3_name</text>
+			<text font="letterica18">\n </text>
+			<text font="letterica18" r="106" g="95" b="91">rp_team_3_desc</text>
+			<text font="letterica18">\n \n </text>
+			<text font="letterica18" r="192" g="168" b="144">rp_team_4_name</text>
+			<text font="letterica18">\n </text>
+			<text font="letterica18" r="106" g="95" b="91">rp_team_4_desc</text>
+			<text font="letterica18">\n \n </text>
+			<text font="letterica18" r="192" g="168" b="144">rp_team_5_name</text>
+			<text font="letterica18">\n </text>
+			<text font="letterica18" r="106" g="95" b="91">rp_team_5_desc</text>
+			<text font="letterica18">\n \n </text>
+			<text font="letterica18" r="192" g="168" b="144">rp_team_6_name</text>
+			<text font="letterica18">\n </text>
+			<text font="letterica18" r="106" g="95" b="91">rp_team_6_desc</text>
+			<text font="letterica18">\n \n </text>
+			<text font="letterica18" r="192" g="168" b="144">rp_team_7_name</text>
+			<text font="letterica18">\n </text>
+			<text font="letterica18" r="106" g="95" b="91">rp_team_7_desc</text>
+			<text font="letterica18">\n \n </text>
+			<text font="letterica18" r="192" g="168" b="144">rp_team_8_name</text>
+			<text font="letterica18">\n </text>
+			<text font="letterica18" r="106" g="95" b="91">rp_team_8_desc</text>
+			<text font="letterica18">\n \n </text>
+		</text_desc>
+	</team_selector>
+</window>

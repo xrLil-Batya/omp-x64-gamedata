@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<string_table>
+
+	<string id = "ui_st_mp_login_net">
+		<text>Логин:</text>
+	</string>
+	
+	
+	<string id = "ui_st_mp_ipserver">
+		<text>IP:</text>
+	</string>
+	
+	<string id = "ui_st_mp_port">
+		<text>Порт:</text>
+	</string>
+	
+
+</string_table>
+

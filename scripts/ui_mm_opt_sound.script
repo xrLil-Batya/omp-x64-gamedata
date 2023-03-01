@@ -1,0 +1,65 @@
+class "opt_sound" (CUIWindow)
+
+function opt_sound:__init() super()
+end
+
+function opt_sound:__finalize()
+
+end
+
+function opt_sound:InitControls(x, y, xml, handler)
+
+	self:SetWndPos(vector2():set(x,y))
+	self:SetWndSize(vector2():set(738,416))
+	self:SetAutoDelete(true)
+
+	xml:InitStatic("tab_sound:cap_mastervolume",		self)
+	xml:InitStatic("tab_sound:cap_musicvolume",			self)
+
+	xml:InitStatic("tab_sound:cap_check_eax",			self)
+	xml:InitStatic("tab_sound:cap_check_dynamic_music",	self)
+
+	xml:InitCheck("tab_sound:check_eax",				self)
+	xml:InitCheck("tab_sound:check_dynamic_music",		self)
+
+
+	xml:InitTrackBar				("tab_sound:track_musicvolume",	self)
+	xml:InitTrackBar				("tab_sound:track_mastervolume",self)
+
+
+	xml:InitStatic					("tab_sound:cap_snd_device",		self)
+	xml:InitComboBox				("tab_sound:list_snd_device",	self)
+
+	xml:InitStatic("tab_sound:cap_vc_title", self)
+
+	xml:InitStatic("tab_sound:cap_players_voice_volume", self)
+	xml:InitTrackBar("tab_sound:track_players_voice_volume", self)
+
+	xml:InitStatic("tab_sound:cap_recorder_volume", self)
+	self.recorder_volume = xml:InitTrackBar("tab_sound:track_recorder_volume", self)
+	
+	xml:InitStatic("tab_sound:cap_check_recorder_agc", self)
+	self.check_agc = xml:InitCheck("tab_sound:check_recorder_agc", self)
+	handler:Register(self.check_agc, "opt_sound_check_agc")
+	handler:AddCallback("opt_sound_check_agc", ui_events.BUTTON_CLICKED, self.UpdateControls, self)
+	
+	xml:InitStatic("tab_sound:cap_check_recorder_denoise", self)
+	xml:InitCheck("tab_sound:check_recorder_denoise", self)
+		
+	xml:InitStatic("tab_sound:cap_snd_device", self)
+	xml:InitComboBox("tab_sound:list_snd_device", self)
+end
+
+function opt_sound:UpdateControls()
+	self:update_recorder_volume_trackbar()
+end
+
+function opt_sound:update_recorder_volume_trackbar()
+	if self.check_agc:GetCheck() then
+		self.recorder_volume:Enable(false)
+		printf_msg("update_recorder_volume_trackbar 1")
+	else
+		self.recorder_volume:Enable(true)
+		printf_msg("update_recorder_volume_trackbar 2")
+	end
+end

@@ -1,0 +1,99 @@
+
+----------------------------------------------------------------------------------------------------------------------
+class "cl_stalker_binder" (object_binder)
+----------------------------------------------------------------------------------------------------------------------
+function cl_stalker_binder:__init (obj) super(obj)
+
+end
+----------------------------------------------------------------------------------------------------------------------
+function cl_stalker_binder:net_spawn(data)
+	if object_binder.net_spawn(self,data) == false then
+		return false	
+	end
+	db.add_obj(self.object)
+	sound_theme.init_npc_sound(self.object)
+	self.object:set_callback(callback.use_object, self.use_callback, self)
+	self.object:set_callback(callback.hit, self.hit_callback, self)
+	self.object:set_callback(callback.death, self.death_callback, self)
+	return true
+end
+
+----------------------------------------------------------------------------------------------------------------------
+function cl_stalker_binder:net_destroy()
+	object_binder.net_destroy(self)
+
+	xr_sound.stop_sounds_by_id(self.object:id())
+	self.object:set_callback(callback.use_object, nil)
+	self.object:set_callback(callback.hit, nil)
+	self.object:set_callback(callback.death, nil)
+	db.del_obj(self.object)
+	db.storage[self.object:id()] = nil
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function cl_stalker_binder:reinit()
+	object_binder.reinit(self)
+	db.storage[self.object:id()] = {  followers = {} }
+	self.object:set_callback(callback.use_object, self.use_callback, self)
+	self.object:set_callback(callback.hit, self.hit_callback, self)
+	self.object:set_callback(callback.death, self.death_callback, self)
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function cl_stalker_binder:update(delta)
+	object_binder.update(self, delta)
+	xr_sound.update(self.object:id())
+	
+	local object = self.object
+	local is_alive = object:alive()
+	
+	if is_alive and db.mp_actor ~= nil then
+		--' Апдейт юзабилити персонажа
+		self:update_usability(object)
+	end
+
+    if is_alive then
+        trade_manager.update(object)
+    end
+end
+
+
+function cl_stalker_binder:update_usability()
+	local object = self.object
+
+	if db.mp_actor ~= nil and object:relation(db.mp_actor) ~= game_object.enemy then
+		object:enable_talk()
+	else
+		object:disable_talk()
+	end
+end
+
+--------------------------------------------------------------------------------------------------------
+function cl_stalker_binder:use_callback(obj)	
+
+end
+
+
+function cl_stalker_binder:hit_callback(obj, amount, local_direction, who, bone_index)
+	if db.mp_actor and who:id() == db.mp_actor:id() then
+		xr_statistic.set_best_weapon(amount)
+	end
+end
+
+function cl_stalker_binder:death_callback(victim, who)
+	if db.mp_actor and who:id() == db.mp_actor:id() then
+		xr_statistic.inc_killed_stalkers_counter()
+		xr_statistic.set_best_monster(self.object)
+	end
+end
+----------------------------------------------------------------------------------------------------------------------
+function cl_stalker_binder:save(packet)
+	object_binder.save(self, packet)
+
+end
+----------------------------------------------------------------------------------------------------------------------
+function cl_stalker_binder:load(reader)
+	object_binder.load(self, reader)
+end

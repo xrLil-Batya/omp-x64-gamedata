@@ -1,0 +1,66 @@
+-----------------------------------------------------------------------------------
+-- Monster binding
+-----------------------------------------------------------------------------------
+
+function bind(obj)
+	printf("_bp: monster.bind: name='%s', id='%d'", obj:name(), obj:id())
+
+	-- Для спауна
+	--xr_spawner.spawn_client(obj)
+
+	local new_binder = cl_monster_binder(obj)
+	obj:bind_object(new_binder)
+end
+
+------------------------------------------------------------------------------------
+class "cl_monster_binder" (object_binder)
+
+function cl_monster_binder:__init(obj) super(obj)
+	self.loaded = false
+end
+
+function cl_monster_binder:reload(section)
+	object_binder.reload(self, section)
+end
+
+function cl_monster_binder:reinit()
+	object_binder.reinit(self)
+
+	self.object:set_callback(callback.hit, self.hit_callback, self)
+	self.object:set_callback(callback.death, self.death_callback, self)
+end
+
+function cl_monster_binder:net_spawn(sobject)
+	if not object_binder.net_spawn(self, sobject) then
+		return false
+	end
+
+	return true
+end
+
+function cl_monster_binder:update(delta)
+	object_binder.update(self, delta)
+
+end
+
+function cl_monster_binder:death_callback(victim, who)
+	self:hit_callback(victim, 1, vector():set(0,0,0), who, "from_death_callback")
+	if db.mp_actor and who:id() == db.mp_actor:id() then
+		xr_statistic.inc_killed_monsters_counter()
+		xr_statistic.set_best_monster(self.object)
+	end
+end
+
+function cl_monster_binder:hit_callback(obj, amount, local_direction, who, bone_index)
+	if db.mp_actor and who:id() == db.mp_actor:id() then
+		xr_statistic.set_best_weapon(amount)
+	end
+end
+
+function cl_monster_binder:net_destroy()
+	self.object:set_callback(callback.death, nil)
+	self.object:set_callback(callback.hit, nil)
+	xr_sound.stop_sounds_by_id(self.object:id())
+
+	object_binder.net_destroy(self)
+end

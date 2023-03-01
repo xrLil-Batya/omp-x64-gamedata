@@ -1,0 +1,109 @@
+local M_SCRIPT_CUSTOM_EVENT = 2
+
+local EVENTS =
+{
+	INIT_EVENT = 1, -- for single actor
+	PLAYER_INIT_EVENT = 2,
+	DOOR_USE = 3,
+	DOOR_CHANGE_SECTION = 4,
+	TRADE_CONFIG = 5,
+	NPC_SOUND = 6,
+	TELEPORT_PLAYER = 7
+}
+
+--
+
+function gen_event(type)
+	local P = net_packet()
+	P:w_begin(M_SCRIPT_CUSTOM_EVENT)
+	P:w_u8(EVENTS[type])
+	return P
+end
+
+function send_to_server(P)
+	script_events.send_to_server(P)
+end
+
+function send_to_client(clientId, P)
+	script_events.send_to_client(clientId, P)
+end
+
+function send_broadcast(P)
+	script_events.send_broadcast(P)
+end
+
+--
+
+function cl_send_request_init_event()
+	send_to_server(gen_event('INIT_EVENT'))
+end
+
+function cl_send_request_player_init_event()
+	send_to_server(gen_event('PLAYER_INIT_EVENT'))
+end
+
+--
+
+function process_client_events()
+	while script_events.get_size_client_events() > 0 do
+		--printf_msg('CL: start process event')
+		local P = script_events.get_front_client_event()
+		local type = P:r_u8()
+		
+		--printf_msg('event type: %d', type)
+
+		if type == EVENTS.INIT_EVENT then
+			-- init event for single actor object
+
+		elseif type == EVENTS.PLAYER_INIT_EVENT then
+			mp_doors_sync.cl_process_all_door_sections(P)
+			mp_trade_sync.cl_process_all_trade_configs(P)
+
+		elseif type == EVENTS.DOOR_CHANGE_SECTION then
+			mp_doors_sync.cl_process_door_section(P)
+
+		elseif type == EVENTS.TRADE_CONFIG then
+			mp_trade_sync.cl_process_trade_config(P)
+
+		elseif type == EVENTS.NPC_SOUND then
+			sound_theme.cl_process_npc_sound(P)
+		end
+
+		script_events.pop_front_client_event()
+		--printf_msg('CL: stop process event')
+	end
+end
+
+--
+
+function process_server_events()	
+	while script_events.get_size_server_events() > 0 do
+		-- printf_msg('SV: start process event')
+		local e = script_events.get_front_server_event()
+		local P = e.Packet
+		local type = P:r_u8()
+
+		if type == EVENTS.INIT_EVENT then
+			-- init event for single actor object
+			local packet = gen_event('INIT_EVENT')
+			send_to_client(e.SenderID, packet)
+
+		elseif type == EVENTS.PLAYER_INIT_EVENT then
+			local packet = gen_event('PLAYER_INIT_EVENT')
+			mp_doors_sync.sv_write_all_door_sections(packet)
+			mp_trade_sync.sv_write_all_trade_configs(packet)
+			send_to_client(e.SenderID, packet)
+			
+		elseif type == EVENTS.DOOR_USE then
+			mp_doors_sync.sv_process_use_door_event(e.SenderID, P)
+
+		elseif type == EVENTS.TELEPORT_PLAYER then
+			mp_teleport.sv_process_teleport_event(e.SenderID, P)
+		end
+
+		script_events.pop_front_server_event()
+		--printf_msg('SV: stop process event')
+	end
+end
+
+--

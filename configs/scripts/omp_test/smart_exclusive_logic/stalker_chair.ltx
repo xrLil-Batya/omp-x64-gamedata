@@ -1,0 +1,32 @@
+[logic@omp_test_stalkers_chair]
+suitable = {=npc_community(stalker)} true
+trade = misc\trade\trade_omp_stalker.ltx
+prior = 199
+active = animpoint@omp_test_stalkers_chair
+can_select_weapon = false
+
+[animpoint@omp_test_stalkers_chair]
+cover_name = omp_test_smart_cover_sit
+avail_animations = animpoint_sit_normal
+use_camp = false
+meet = meet
+combat_ignore_cond = true
+combat_ignore_keep_when_attacked = true
+invulnerable = true
+gather_items_enabled = false
+help_wounded_enabled = false
+corpse_detection_enabled = false
+
+[meet]
+close_snd_hello = jup_a6_stalker_barmen_greeting
+close_snd_bye 	= jup_a6_stalker_barmen_farewell
+close_anim 		= nil
+close_victim 	= nil
+far_anim 		= nil
+far_victim 		= nil
+close_distance  = 0
+far_distance 	= 0
+close_snd_distance = 3
+use = true					; {=actor_enemy} false, true
+allow_break = false
+meet_on_talking = false
