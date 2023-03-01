@@ -10,6 +10,8 @@ class "localnet_page" (CUIScriptWnd)
 function localnet_page:__init() super()
    self:InitControls()
    self:InitCallbacks()
+
+   self:LoadTextFilds()
 end
 
 function localnet_page:InitControls()
@@ -81,6 +83,40 @@ function localnet_page:InitCallbacks()
 	self:AddCallback("gs_message_box", ui_events.MESSAGE_BOX_OK_CLICKED, self.OnMsgOk, self)
 end 
 
+function localnet_page:LoadTextFilds()
+	local ini = read_ini("$mp_saves$", "auth.ltx")
+	local ip, port, nick, pass = nil
+	
+	if (ini ~= nil) then
+		if (ini:section_exist("auth")) then
+			ip = ini:r_string("auth", "ip")
+			port = ini:r_string("auth", "port")
+			nick = ini:r_string("auth", "nick")
+			pass = ini:r_string("auth", "pass")
+		else 
+			return
+		end
+		
+		self.lp_ip_server:SetText(ip)
+		self.lp_port:SetText(port)
+		self.lp_nickname:SetText(nick)
+		self.lp_password:SetText(pass)
+	end
+end
+
+function localnet_page:SaveAuth(server, port, nickname, password)
+	local ini = create_ini("$mp_saves$", "auth.ltx")
+
+	if (ini ~= nil) then	
+		--printf_msg("INI FILE CREATED path = %s", ini:fname())
+		ini:w_string("auth", "ip", server)
+		ini:w_string("auth", "port", port)
+		ini:w_string("auth", "nick", nickname)
+		ini:w_string("auth", "pass", password)
+		ini:save()
+	end
+end
+
 function localnet_page:OnBtnLogin()
 	local server   = self.lp_ip_server:GetText()
 	local nickname = self.lp_nickname:GetText()
@@ -90,6 +126,8 @@ function localnet_page:OnBtnLogin()
 	local cmd = "start client("..server.."/port="..port.."/name="..nickname.."/pass="..password..")" 
 	
 	printf_msg(cmd)
+
+	self:SaveAuth(server, port, nickname, password)
 
 	local console = get_console()
 	console:execute(cmd)
