@@ -41,5 +41,10 @@
 #define USABLE_BIT_15 uint(0x80000000)
 #define MUST_BE_SET uint(0x40000000)   // This flag *must* be stored in the floating-point representation of the bit flag to store
 
+#if defined(SM_5) || defined(SM_4_1)
+    #define TEXTURE2DMS(a, b) Texture2DMS<a>
+#else
+    #define TEXTURE2DMS(a, b) Texture2DMS<a, b>
+#endif
 
 #endif	//	common_defines_h_included

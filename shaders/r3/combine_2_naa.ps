@@ -21,16 +21,12 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////
+#define	EPSDEPTH	0.001
+
 #ifndef USE_MSAA
 Texture2D 			s_distort;
-#define	EPSDEPTH	0.001
 #else
-	#ifndef SM_5
-		Texture2DMS<float4,MSAA_SAMPLES> s_distort;
-	#else
-		Texture2DMS<float4>	s_distort;
-	#endif
-#define	EPSDEPTH	0.001
+TEXTURE2DMS(float4, MSAA_SAMPLES) s_distort;
 #endif
 //////////////////////////////////////////////////////////////////////////////////////////
 float4 e_barrier;	// x=norm(.8f), y=depth(.1f), z=clr

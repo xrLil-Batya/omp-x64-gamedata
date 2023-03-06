@@ -4,11 +4,7 @@
 #ifndef USE_MSAA
 Texture2D 							s_vollight;
 #else
-	#ifndef SM_5
-		Texture2DMS<float4,MSAA_SAMPLES> s_vollight;
-	#else
-		Texture2DMS<float4>	s_vollight;
-	#endif
+TEXTURE2DMS(float4, MSAA_SAMPLES) s_vollight;
 #endif
 
 struct	_input      
@@ -34,12 +30,9 @@ _out main( _input I )
 #ifndef USE_MSAA
 	color = s_vollight.Load(int3(I.tc0.xy*screen_res.xy, 0));
 #else // USE_MSAA
-	color = s_vollight.Load(int3(I.tc0.xy*screen_res.xy, 0), 0);
-	[unroll] for(int iSample = 1; iSample < MSAA_SAMPLES; ++iSample)
-	{
-		color	+= s_vollight.Load(int3(I.tc0*screen_res.xy, 0), iSample);
-	}
-	color /= MSAA_SAMPLES;
+    color = s_vollight.Load(int3(I.tc0.xy * screen_res.xy, 0), 0);
+    [unroll] for (int iSample = 1; iSample < MSAA_SAMPLES; ++iSample) { color += s_vollight.Load(int3(I.tc0 * screen_res.xy, 0), iSample); }
+    color /= MSAA_SAMPLES;
 #endif // USE_MSAA
 
 	tonemap(o.low, o.high, color, tm_scale );
