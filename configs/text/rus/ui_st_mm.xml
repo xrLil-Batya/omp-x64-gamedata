@@ -721,7 +721,7 @@
 		<text>По Интернету</text>
 	</string>
 	<string id="ui_mp_localnet">
-		<text>В локальной сети</text>
+		<text>Сетевая игра</text>
 	</string>
 	<string id="ui_st_backstabks_in_row">
 		<text>ножом в спину</text>
