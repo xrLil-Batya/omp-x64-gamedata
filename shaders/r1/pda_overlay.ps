@@ -5,6 +5,16 @@ struct 	v2p
   	half4	c0:			COLOR0;		// sun.(fog*fog)
 };
 
+float rand(float n)
+{
+    return frac(cos(n)*343.42);
+}
+
+float noise(float2 tc)
+{
+    return frac(sin(dot(tc, float2(12.0, 78.0) + (timers.x) )) * 43758.0)*0.25f; 
+}
+
 uniform sampler2D s_pdascreen;
 uniform float4 pda_params;
 
