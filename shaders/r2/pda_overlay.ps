@@ -1,14 +1,18 @@
 #include "common.h"
-
 struct 	v2p
 {
- 	float2 	tc0: TEXCOORD0;	//main tc for screen
-  	float4	c0: COLOR0;		//unused shit mb vertex shader idk
+ 	float2 	tc0: 		TEXCOORD0;	// base
+  	float4	c0:			COLOR0;		// sun.(fog*fog)
 };
 
 float rand(float n)
 {
     return frac(cos(n)*343.42);
+}
+
+float noise(float2 tc)
+{
+    return frac(sin(dot(tc, float2(12.0, 78.0) + (timers.x) )) * 43758.0)*0.25f; 
 }
 
 //intensity and frequency of flickering
@@ -28,21 +32,21 @@ float rand(float n)
 #define SCREEN_RAND_TIME float(1.0)
 
 
-Texture2D s_pdascreen;
-float4 pda_params;
+uniform sampler2D s_pdascreen;
+uniform float4 pda_params;
 
 float3 glitch(float3 screen, float2 tc)
 {
     if ((tc.x - rand(timers.x*SCREEN_RAND_TIME) * noise(tc) ) < clamp(SCREEN_GLITCH_LIMIT.x,sin(4.*noise(tc)),SCREEN_GLITCH_LIMIT.y)) 
     {
         float randori_first = rand(sin(timers.x*SCREEN_RGB_RAND.x));
-        screen.x *= s_pdascreen.Sample(smp_base, float2(tc.x-SCREEN_RGB_TCX.x, tc.y+SCREEN_RGB_TCY.x)).z*randori_first;
+        screen.x *= tex2D(s_pdascreen, float2(tc.x-SCREEN_RGB_TCX.x, tc.y+SCREEN_RGB_TCY.x)).z*randori_first;
         
         float randori_second = rand(sin(timers.x*SCREEN_RGB_RAND.y));
-        screen.y *= s_pdascreen.Sample(smp_base, float2(tc.x-SCREEN_RGB_TCX.y, tc.y+SCREEN_RGB_TCY.y)).y*randori_second;
+        screen.y *= tex2D(s_pdascreen, float2(tc.x-SCREEN_RGB_TCX.y, tc.y+SCREEN_RGB_TCY.y)).y*randori_second;
         
         float randori_third = rand(sin(timers.x*SCREEN_RGB_RAND.z));
-        screen.z *= s_pdascreen.Sample(smp_base, float2(tc.x-SCREEN_RGB_TCX.z, tc.y+SCREEN_RGB_TCY.z)).x*randori_third;
+        screen.z *= tex2D(s_pdascreen, float2(tc.x-SCREEN_RGB_TCX.z, tc.y+SCREEN_RGB_TCY.z)).x*randori_third;
         
         screen += SCREEN_FLICKERING.x * sin(timers.x*SCREEN_FLICKERING.y);    
     }
@@ -50,9 +54,9 @@ float3 glitch(float3 screen, float2 tc)
 	return screen;
 } 
 
-float4 main( v2p I ): SV_Target
+float4 main( v2p I ): COLOR
 {
-	float4 col = s_pdascreen.Sample(smp_base, I.tc0);
+	float4 col = tex2D(s_pdascreen, I.tc0);
 	//col.xyz = lerp(col.xyz, glitch(col.xyz, I.tc0), pda_params.y);
 	return float4(col.r, col.g, col.b, pda_params.x)*pda_params.z;
 }

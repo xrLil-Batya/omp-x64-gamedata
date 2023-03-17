@@ -41,8 +41,8 @@ half3 glitch(half2 tc)
 half4 main( v2p I ): COLOR
 {
 	half4 col = tex2D(s_pdascreen, I.tc0);
-	half3 col_mod = glitch(I.tc0);
-	col.xyz = lerp(col.xyz, col_mod.xyz, pda_params.y);
+	//half3 col_mod = glitch(I.tc0);
+	//col.xyz = lerp(col.xyz, col_mod.xyz, pda_params.y);
 	
 	return half4(col.r, col.g, col.b, pda_params.x)*pda_params.z;
 }

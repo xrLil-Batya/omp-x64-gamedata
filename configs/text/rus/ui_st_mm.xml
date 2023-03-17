@@ -880,7 +880,7 @@
 		<text>макс. высоко</text>
 	</string>
 	<string id="renderer_r4">
-		<text>Ул. полное освещение (DX11)</text>
+		<text>Ул. полное освещение (DX10/DX11)</text>
 	</string>
 	<string id="mp_please_login">
 		<text>Пожалуйста, авторизируйтесь для входа на внешний сервер.</text>

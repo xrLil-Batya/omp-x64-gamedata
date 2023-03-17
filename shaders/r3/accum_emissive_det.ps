@@ -1,9 +1,0 @@
-#include "common.h"
-
-float4 pda_params;
-
-float4 main() : SV_Target
-{
-	float brightness = pda_params.x;
-	return float4(brightness,brightness,brightness,0);
-}
